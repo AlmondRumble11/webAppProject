@@ -1,0 +1,17 @@
+{
+    "name": "courseproject",
+    "version": "1.0.0",
+    "description": "",
+
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "cd server && npm start",
+        "dev:client": "cd client && npm start",
+        "dev:server": "cd server && npm run dev",
+        "preinstall": "cd server && npm install",
+        "install": "cd client && npm install",
+        "build": "cd client && npm run build"
+    },
+    "author": "jesse mustonen",
+    "license": "ISC"
+}
