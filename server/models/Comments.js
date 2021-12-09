@@ -22,6 +22,12 @@ const commentSchema = new Schema({
     date: { //last time edited the comment
         type: String
     },
+    upvotes: {
+        type: Array //up votes ids
+    },
+    downvotes: {
+        type: Array //down votes ids
+    }
 
 });
 

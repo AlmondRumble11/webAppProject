@@ -32,6 +32,21 @@ const userShema = new Schema({
     },
     registerdate: { //register date of the user
         type: String
+    },
+    upvotesPost: {
+        type: Array //up votes ids
+    },
+    downvotesPost: {
+        type: Array //down votes ids
+    },
+    upvotesComments: {
+        type: Array //up votes ids
+    },
+    downvotesComments: {
+        type: Array //down votes ids
+    },
+    admin: {
+        type: Boolean //true if admin user
     }
 });
 

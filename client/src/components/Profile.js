@@ -12,7 +12,7 @@ export default function Profile({token, user}) {
     //getting the user
     useEffect(() => {
 
-        console.log(token,user);
+       
         console.log("#######################"+username);
         if(!token){
         //fetch all a profile
@@ -21,17 +21,20 @@ export default function Profile({token, user}) {
             .then(data => {
                 console.log(data);
                 setProfileUser(data);
+                setPosts(data.posts);
+                setComments(data.comments);
               
                 
             });
        }else{
-        setProfileUser(user);
+        setProfileUser(localStorage.getItem('user'));
        }
 
     }, []);
     var commentList  = []
     if(comments){
         commentList =  comments.map((item) => 
+       
         //https://www.robinwieruch.de/react-update-item-in-list
         //if item.clicked = true then change textDecoration to line-through. using className to change decoration did not work in the tests but worked on the webpage
         //<Comment key={item._id} username={item.username} content={item.content}  date={item.date}/>
@@ -42,11 +45,12 @@ export default function Profile({token, user}) {
     var postList  = []
     if(posts){
         postList =  posts.map((item) => 
+        
         //https://www.robinwieruch.de/react-update-item-in-list
         //if item.clicked = true then change textDecoration to line-through. using className to change decoration did not work in the tests but worked on the webpage
         //<Comment key={item._id} username={item.username} content={item.content}  date={item.date}/>
-      
         <p>{item}</p>
+       
     
     );}
     console.log(user, token);

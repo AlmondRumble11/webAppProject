@@ -20,12 +20,15 @@ function App() {
   useEffect(() => {
     console.log("user is:"+user.username);
     console.log("token is:"+token);
+    
     if(token){
-      localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(user));
+      //setUser(JSON.parse(localStorage.getItem('user')));
+      
   
     
     }
-  }, [token, user])
+  }, [])
   
   return (
     <Router>

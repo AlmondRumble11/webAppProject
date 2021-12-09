@@ -26,8 +26,11 @@ const postShema = new Schema({
     comments: {
         type: Array //comment id
     },
-    votes: {
-        type: Array //vote and username
+    upvotes: {
+        type: Array //up votes ids
+    },
+    downvotes: {
+        type: Array //down votes ids
     }
 });
 

@@ -44,6 +44,7 @@ router.post('/register',
 
 
         const errors = validationResult(req);
+        console.log(errors);
         if (!errors.isEmpty()) {
             console.log("found errors");
             /*for (let i = 0; i < errors.array().length; i++) {
@@ -125,7 +126,12 @@ router.post('/login', upload.none(), (req, res, next) => {
                         posts: user.posts,
                         comments: user.comments,
                         bio: user.bio,
-                        registerdate: user.registerdate
+                        registerdate: user.registerdate,
+                        admin: false,
+                        upvotesPost: [],
+                        downvotesPost: [],
+                        upvotesComment: [],
+                        downvotesComment: []
 
                     };
                     console.log(process.env.SECRET);
@@ -156,7 +162,7 @@ router.get("/posts", (req, res, next) => {
 
         //if posts found
         if (posts) {
-
+            console.log(posts);
             return res.send(posts);
         } else {
             //no posts found
@@ -211,39 +217,10 @@ router.post("/addcomment", passport.authenticate('jwt', { session: false }), (re
     });
 
     console.log(req.body.postID);
-    //add new comment to post comment. content and username 
-    /*let postComment = [
-        [req.body.content, req.body.username]
-    ];
-    Post.findByIdAndUpdate({ _id: req.body.postID }, { $push: { comments: postComment } }, (err, success) => {
-        if (err) throw err;
-
-        if (!success) {
-            res.json({ success: false, msg: "failed to modify post" });
-        }
+    res.json({ success: true, msg: "Added comment" });
+ 
     });
 
-    //find the new created comment and get its id
-    Comments.findOne({ userID: req.body.userID, username: req.body.username, postID: req.body.postID, content: req.body.content }, (err, comment) => {
-        //found the comment
-        if (comment) {
-            //add new comment to user 
-            Users.findByIdAndUpdate({ _id: req.body.userID }, { $push: { comments: comment._id } }, (err, success) => {
-                if (err) throw err;
-
-                if (!success) {
-                    res.json({ success: false, msg: "failed to modify post" });
-                }
-            });
-        } else {
-            console.log("did not find the comment");
-        }
-    });*/
-
-
-
-    res.json({ success: true, msg: "Added comment" });
-});
 //add new post
 router.post("/addpost", passport.authenticate('jwt', { session: false }), (req, res, next) => {
     console.log(req.body);
@@ -273,23 +250,7 @@ router.post("/addpost", passport.authenticate('jwt', { session: false }), (req, 
         console.log("saved new post");
     });
 
-    //add the created post to users posts
-    //find the new created post and get its id
-    /*Post.findOne({ userID: req.body.userID, username: req.body.username, title: req.body.title, content: req.body.content }, (err, post) => {
-        //found the comment
-        if (post) {
-            //add new comment to user 
-            Users.findByIdAndUpdate({ _id: req.body.userID }, { $push: { posts: post._id } }, (err, success) => {
-                if (err) throw err;
 
-                if (!success) {
-                    res.json({ success: false, msg: "failed to modify add " });
-                }
-            });
-        } else {
-            console.log("did not find the post");
-        }
-    });*/
 
     res.json({ success: true, msg: "Your post was added" });
 });
@@ -331,72 +292,149 @@ router.post("/update/user", passport.authenticate('jwt', { session: false }), (r
 //update a post content
 router.post("/update/post/content", passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
+    //get current date and time
+    var currentDay = new Date();
+    var updateDate = currentDay.getDate() + "/" + (currentDay.getMonth() + 1) + "/" + currentDay.getFullYear();
+    var updateTime = currentDay.getHours() + ":" + currentDay.getMinutes();
+    var fullUpdateTime = updateTime + " " + updateDate;
+
     //set new content
-    Post.findByIdAndUpdate({ _id: req.body._id }, { $set: { content: req.body.content, date: req.body.date } }, (err, success) => {
+    Post.findByIdAndUpdate({ _id: req.body._id }, { $set: { title: req.body.title, content: req.body.content, date: fullUpdateTime } }, (err, success) => {
         if (err) throw err;
 
         if (!success) {
             res.json({ success: false, msg: "failed to modify post" });
+        } else {
+            res.json({ success: true, msg: "post modfied" });
         }
     });
 
 });
 //update a post votes
 router.post("/post/votes", passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    let vote = 0;
+    let prevVote = 0;
+    let hasupVoted = false;
+    let hasdownVoted = false;
+    let upvotesList = [];
+    let downvotesList = [];
+    //get previous vote 
+    Users.findById({_id: req.body.userID} ,(err, user)=>{
+        
+        if(user){
 
-    //all votes
-    let allVotes = [];
-    let newOne = true;
-
-    //get current post
-    console.log("finding post with id:" + req.body._id);
-    console.log("user is:" + req.body.username);
-    Post.findById({ _id: req.body._id }, (err, post) => {
-        if (post) {
-            for (let i = 0; i < post.votes.length; i++) {
-
-                //has already given like or dislike
-                if (post.votes[i][0] == req.body.username) {
-                    newOne = false;
-                    console.log("has given some vote");
-                    //check if the given vote is different
-                    console.log(post.votes[i][1], req.body.vote);
-                    if (post.votes[i][1] == req.body.vote) {
-                        console.log("Already given same vote");
-                        return res.json({ success: false, msg: "Already liked the post" });
-                    } else {
-                        console.log("Adding a new vote");
-                        //add the new vote to end of the array
-                        allVotes.push([req.body.username, req.body.vote])
-
-                    }
-
-                } else {
-                    //add all of the votes to array
-                    allVotes.push(post.votes[i]);
+            //check if already upvoted
+            for(let i=0; i<user.upvotesPost.length; i++){
+                if(user.upvotesPost[i]==req.body._id){
+                    hasupVoted = true;
+                }else{
+                    //add votes to list
+                    upvotesList.push(user.upvotesPost[i]);
                 }
             }
 
 
-            //havent given a vote before
-            if (newOne) {
-                allVotes.push([req.body.username, req.body.vote]);
-            }
-            //add new vote
-            Post.findByIdAndUpdate({ _id: req.body._id }, { $set: { votes: allVotes } }, (err, success) => {
-                allVotes = [];
-                if (err) throw err;
-
-                if (!success) {
-                    res.json({ success: false, msg: "failed to modify post" });
-                } else {
-                    res.json({ success: success, msg: "Vote added" });
+            //check if already down voted
+            for(let i=0; i<user.downvotesPost.length; i++){
+                if(user.downvotesPost[i]==req.body._id){
+                    hasdownVoted = true;
+                }else{
+                    //add votes to list
+                    downvotesList.push(user.downvotesPost[i]);
                 }
-            });
+            }
 
+            //has given both --> problem 
+            if(hasdownVoted && hasupVoted){
+                return res.json({ success: false, msg: "has both upvoted and downvoted" });
+            }
+
+
+
+            //check for like or dislike
+            if(req.body.vote == 1){
+                console.log('is like');    
+
+                //if has down voted-->remove it
+                if(hasdownVoted){
+                    Users.findByIdAndUpdate({ _id: req.body.userID }, { $set: { downvotesPost: downvotesList } }, (err, success) => {
+                        if (err) throw err;
+                
+                        if (!success) {
+                            res.json({ success: false, msg: "failed to remove dislike" });
+                        } else {
+                            console.log('dislike removed-->adding like');
+                        }
+                    });
+                }
+
+
+                //already given a like--> remove the like
+                if(hasupVoted){
+                    Users.findByIdAndUpdate({ _id: req.body.userID }, { $set: { upvotesPost: upvotesList } }, (err, success) => {
+                        if (err) throw err;
+                
+                        if (!success) {
+                            res.json({ success: false, msg: "failed to remove like" });
+                        } else {
+                            res.json({ success: true, msg: "like removed" });
+                        }
+                    });
+                }else{
+                    //add the like
+                    Users.findByIdAndUpdate({ _id: req.body.userID }, { $push: { upvotesPost: req.body._id } }, (err, success) => {
+                        if (err) throw err;
+                
+                        if (!success) {
+                            res.json({ success: false, msg: "failed to add like" });
+                        } else {
+                            res.json({ success: true, msg: "like added" });
+                        }
+                    });
+                }
+
+            }else{
+                console.log('is dislike');
+
+                //if has upvoted --> remove the like
+                if(hasupVoted){
+                    Users.findByIdAndUpdate({ _id: req.body.userID }, { $set: { upvotesPost: upvotesList } }, (err, success) => {
+                        if (err) throw err;
+                
+                        if (!success) {
+                            res.json({ success: false, msg: "failed to remove like" });
+                        } else {
+                            console.log('like removed-->adding dislike');
+                        }
+                    });
+                }
+
+                //already given a dislike--> remove the like
+                if(hasdownVoted){
+                    Users.findByIdAndUpdate({ _id: req.body.userID }, { $set: { downvotesPost: downvotesList } }, (err, success) => {
+                        if (err) throw err;
+                
+                        if (!success) {
+                            res.json({ success: false, msg: "failed to remove dislike" });
+                        } else {
+                            res.json({ success: true, msg: "dislike removed modfied" });
+                        }
+                    });
+                }else{
+                    //add the like
+                    Users.findByIdAndUpdate({ _id: req.body.userID }, { $push: { downvotesPost: req.body._id } }, (err, success) => {
+                        if (err) throw err;
+                
+                        if (!success) {
+                            res.json({ success: false, msg: "dislike added" });
+                        } else {
+                            res.json({ success: true, msg: "dislike added" });
+                        }
+                    });
+                }
+            }
         }
-    });
-
+    })
 
 });
 
@@ -405,35 +443,35 @@ router.post("/post/votes", passport.authenticate('jwt', { session: false }), (re
 router.post("/post/comment", passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
     console.log("################################################################");
-    Comments.findOne({content : req.body.content, postID : req.body.postID, username:req.body.username}, (err, comment)=>{
+    Comments.findOne({ content: req.body.content, postID: req.body.postID, username: req.body.username }, (err, comment) => {
         console.log("Found the comment");
         console.log(comment);
-        if(comment){
-            Post.findOneAndUpdate({ _id: req.body.postID },{ $push: { comments: comment._id } }, (err, success) => {
+        if (comment) {
+            Post.findOneAndUpdate({ _id: req.body.postID }, { $push: { comments: comment._id } }, (err, success) => {
                 if (err) throw err;
-        
+
                 //if post was found(should find it always)
                 if (success) {
-                    return res.json({msg:comment._id});
-        
+                    return res.json({ msg: comment._id });
+
                 } else {
                     console.log("No post found. Something went wrong...");
-                    return res.json("failed to add comment to post" );
+                    return res.json("failed to add comment to post");
                 }
-               
+
             });
         }
     });
-    
+
 });
 
 //update a commetns of the user
 router.post("/user/comment", passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
     console.log("################################################################");
-  
 
-    Users.findOneAndUpdate({ _id: req.body.userID },{ $push: { comments:req.body.commentID } }, (err, success) => {
+
+    Users.findOneAndUpdate({ _id: req.body.userID }, { $push: { comments: req.body.commentID } }, (err, success) => {
         if (err) throw err;
 
         //if post was found(should find it always)
@@ -442,19 +480,25 @@ router.post("/user/comment", passport.authenticate('jwt', { session: false }), (
 
         } else {
             console.log("No post found. Something went wrong...");
-            return res.json("failed to add comment to users" );
+            return res.json("failed to add comment to users");
         }
-        
-    });
-        
 
-    
+    });
+
+
+
 });
 //update a comment 
 router.post("/update/comment", passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
+    //get current date and time
+    var currentDay = new Date();
+    var updateDate = currentDay.getDate() + "/" + (currentDay.getMonth() + 1) + "/" + currentDay.getFullYear();
+    var updateTime = currentDay.getHours() + ":" + currentDay.getMinutes();
+    var fullUpdateTime = updateTime + " " + updateDate;
+
     //set new content
-    Comments.findByIdAndUpdate({ _id: req.body._id }, { $set: { content: req.body.content, date: req.body.date } }, (err, success) => {
+    Comments.findByIdAndUpdate({ _id: req.body._id }, { $set: { content: req.body.content, date: fullUpdateTime} }, (err, success) => {
         if (err) throw err;
 
         if (!success) {
@@ -468,52 +512,218 @@ router.post("/update/comment", passport.authenticate('jwt', { session: false }),
 router.post("/remove/post", passport.authenticate('jwt', { session: false }), (req, res, next) => {
     // console.log(req.body);
     let updatedUserPosts = [];
+    let updatedComments = [];
+    
+
 
     //find the post and remove it from the post collection
     Post.findByIdAndRemove({ _id: req.body._id }, (err, success) => {
-        //discard error
-        if (err) throw err;
 
+        //removed the post
+        if(success){
+            console.log('POST : post was deteled');
+        }else{
+            console.log('POST : post was NOT deleted');
+            return res.json({success: false, msg:'POST : post was NOT deleted'});
+        }
+    });
 
-        //was removed from posts 
-        if (success) {
-
-            //first get all user posts
-            User.findById({ _id: req.body.userID }, (err, user) => {
+    //remove the posts from the poster
+    Users.findOne({ _id: req.body.userID }, (err, user) => {
+            
+        //found the user
+        if (user) {
+            let newUserposts = [];
+            //find the post and set new array to users posts
+            for (let i = 0; i < user.posts.length; i++) {
+              
+                if (user.posts[i] != req.body._id) {
+                    newUserposts.push(user.posts[i]);
+                }else{
+                    console.log('post found');
+                }
+            }
+            console.log('removing a post'+newUserposts);
+            Users.findOneAndUpdate({ _id: req.body.userID }, { $set: { posts: newUserposts } }, (err, success) => {
                 if (err) throw err;
+                 //removed the post
+                if(success){
+                    console.log('USER : post was deleted');
+                }else{
+                    console.log('USER : post was NOT deleted');
+                    return res.json({success: false, msg:'USER : post was NOT deleted'});
+                }
+            });
+        }
+    });
 
-                //found the user
-                if (user) {
-                    for (let i = 0; i < user.posts.length; i++) {
-                        //if post not the removed one
-                        if (user.posts[i] != req.body._id) {
-                            updatedUserPosts.push(user.posts[i]);
+
+    //remove all post comments
+    let commentsRemoved = [];
+    Comments.find({}, (err, comments)=>{
+        if(comments){
+            //find the comments that need to be removed
+            for(let i=0;i<comments.length;i++){
+
+                //found a comment to be removed
+                if(comments[i].postID == req.body._id){
+                    commentsRemoved.push(comments[i]._id);
+                }
+            }
+
+            //remove the comments
+            for(let i=0; i<commentsRemoved.length;i++ ){
+                Comments.findByIdAndRemove({_id: commentsRemoved[i]}, (err, success)=>{
+                    if(success){
+                        console.log('COMMENT : post was deleted');
+                    }else{
+                        console.log('COMMENT : post was NOT deleted');
+                        return res.json({success: false, msg:'COMMENT : post was NOT deleted'});
+                    }
+                });
+            }
+
+
+            //remove the comments from users
+    //first get all users and go through all of their comments and  if removed comment was round "remove" it
+    Users.find({}, (err, users) =>{
+        if(users){
+
+            //all users
+            for(let user = 0; user<users.length; user++){
+                
+                //list of all comments except the removed ones
+                let newCommentList = [];
+                let notToBeRemoved = false;
+                let index = 0;
+                //all single user comments
+              
+                for(let comment = 0; comment<users[user].comments.length;comment++){
+
+                    //all comments to be removed
+                    console.log("THIS MANY COMMENTS NEED TO BE REMOVED:"+commentsRemoved.length);
+                    for(let id = 0; id<commentsRemoved.length;id++){
+
+                        //not to be removed--> add to list
+                        console.log(commentsRemoved[id],users[user].comments[comment]);
+                        if(commentsRemoved[id] != users[user].comments[comment]){
+                            console.log('ids not the same');
+                            notToBeRemoved = true;
+                            index = comment;
+                        }else{
+                            //found the removed-->go next
+                            //https://stackoverflow.com/questions/3954438/how-to-remove-item-from-array-by-value
+                            /*let index = commentsRemoved.indexOf(commentsRemoved[k]);
+                            if (index !== -1) {
+                                commentsRemoved.splice(index, 1);
+                            }*/
+                            notToBeRemoved = false;
+                            break;
                         }
                     }
 
-                    //remove post from the user also
-                    User.findByIdAndUpdate({ _id: req.body.userID }, { $set: { posts: updatedUserPosts } }, (err, success) => {
-                        if (err) throw err;
-
-                        if (success) {
-                            res.json({ success: true, msg: "removed post from the user" });
-
-                        } else {
-                            res.json({ success: false, msg: "failed to remove post" });
-                        }
-                    });
-
-                } else {
-                    res.json({ success: false, msg: "failed to remove post" });
+                    if(notToBeRemoved){
+                      
+                        newCommentList.push(users[user].comments[index]);
+                    }
+                    console.log(newCommentList);
                 }
-            });
-        } else {
-            res.json({ success: false, msg: "failed to remove post" });
-        }
 
+                
+                //remove the comments from the user and go to next user
+                Users.findOneAndUpdate({ _id: users[user]._id }, { $set: { comments: newCommentList } }, (err, success) => {
+                    if (err) throw err;
+                     //removed the post
+                    if(success){
+                        console.log('USER COMMENTS : comment was deleted');
+                    }else{
+                        console.log('USER COMMENTS: comment was NOT deleted');
+                        return res.json({success: false, msg:'USER COMMENTS: comment was NOT deleted'});
+                    }
+                });
+            }
+        }
     });
+        }
+    });
+
+    
+
+    return   res.json({success: false, msg:'POST, COMMENT, USER, USER COMMENTS : post was deleted'});
 });
 
+
+//remove a comment
+router.post("/remove/comment", (req, res, next) => {
+    
+    console.log("REMOVING A COMMENT");
+    console.log(req.body);
+
+    //remove comment from the comments db
+   Comments.findByIdAndRemove({_id : req.body._id}, (err, success)=>{
+        if(success){
+            console.log('COMMENTS : comment was deteled');
+        }else{
+            console.log('COMMENTS : comment was NOT deleted');
+            return res.json({success: false, msg:"COMMENTS : comment was NOT deleted"});
+        }
+    });
+
+    //remove comment from the post db
+    //first get all post comments and "remove" the comment
+    Post.findOne({postID : req.body.postID}, (err, post)=>{
+        if(post){
+
+            //"remove" the comment from comments
+            let commentIds = [];
+            for(let i=0;i<post.comments.length;i++){
+                //add all ids but the removed one
+                if(post.comments[i] != req.body._id){
+                    commentIds.push(post.comments[i]);
+                }
+            }
+
+            //update the posts comment array
+            Post.findByIdAndUpdate({ _id: req.body.postID }, { $set: { comments: commentIds } }, (err, success) => {
+                if (err) throw err;
+                if (success) {
+                    console.log('POST : comment was deteled');
+                }else{
+                    console.log('POST : comment was NOT deleted');
+                    return res.json({success: false, msg:"POST : comment was NOT deleted"});
+                }
+            });
+
+        }
+    });
+    //remove comment from the user db
+    //first get user that removed the comment and "remove" the comment
+    Users.findById({_id: req.body.userID}, (err, user)=>{
+        if(user){
+
+            let commentIds = [];
+            for(let i=0;i<user.comments.length;i++){
+                //add all ids but the removed one
+                if(user.comments[i] != req.body._id){
+                    commentIds.push(user.comments[i]);
+                }
+            }
+
+            //update the posts comment array
+            Users.findByIdAndUpdate({ _id: req.body.userID }, { $set: { comments: commentIds } }, (err, success) => {
+                if (err) throw err;
+                if (success) {
+                    console.log('USER : comment was deteled');
+                }else{
+                    console.log('USER : comment was NOT deleted');
+                    return res.json({success: false, msg:"USER : comment was NOT deleted"});
+                }
+            });
+
+        }
+    })
+    return res.json({success: true, msg:"Comment removed"});
+});
 
 
 router.get("/profile", (req, res, next) => {

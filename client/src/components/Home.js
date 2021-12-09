@@ -9,6 +9,9 @@ export default function Home({token , user}) {
     const [shownPosts, setShownPosts] = useState([]);
     const [maxCount, setMaxCount] = useState(0);
     const [currentCount, setCurrentCount] = useState(0);
+    const [loading, setloading] = useState(true);
+    const [hasPosts, sethasPosts] = useState(false);
+    let newPosts = []
     //getting all of the posts
     useEffect(() => {
 
@@ -16,6 +19,8 @@ export default function Home({token , user}) {
         fetch('api/posts')
             .then(res => res.json())
             .then(data => {
+
+                if(data){
                 console.log(data);
                 setPost(data);
                 setShownPosts(data.slice(0,10));
@@ -25,9 +30,11 @@ export default function Home({token , user}) {
                 console.log(data.length);
 
                 console.log("posts are:"+post);
-                
+                setloading(false);
+            }
             });
-
+           
+           
     }, []);
 
     const showMore = (e) => {
@@ -49,17 +56,23 @@ export default function Home({token , user}) {
         }
 
     }
+    console.log("!!!!"+shownPosts+"!!!!");
+    if(shownPosts){
+      
+        newPosts = shownPosts.map((post) => (
 
+            <SinglePost key={post.id} post={post} token={token} user={user} />
+          ));
+    }
+    console.log(newPosts.length);
     //console.log("posts are:"+post);
-    return ( 
+    return loading ? (<h1>Still loading</h1>) :( 
     <div>
         <h1>All posts</h1>
-        {shownPosts.map((post) => (
-
-              <SinglePost key={post.id} post={post} token={token} user={user} />
-            ))}
+        <ul>{newPosts}</ul>
         <button onClick={showMore} id="morePosts">Show more posts</button>
         
     </div>
     )
+    
 }

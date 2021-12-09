@@ -1,12 +1,12 @@
 import React from 'react'
 import { useState } from 'react';
 import FlashMessage from 'react-flash-message'
-
+import { useNavigate } from 'react-router-dom'
 
 
 
 export default function AddPost({user, token}) {
-
+    let navigate = useNavigate();
 
     const [message, setMessage] = useState();
     const [title, setTitle] = useState();
@@ -14,7 +14,7 @@ export default function AddPost({user, token}) {
 
      //getting the user 
      const userObject = JSON.parse(localStorage.getItem('user'));
-     console.log(userObject);
+    // console.log(userObject);
 
     const submit = (e) => {
         e.preventDefault();
@@ -28,7 +28,7 @@ export default function AddPost({user, token}) {
             console.log("no content");
         }else{
 
-            fetch("/api/addpost", {
+           let newsubmit = async function(){  fetch("/api/addpost", {
                 method: "POST",
                 headers: {
                     "Content-type": "application/json",
@@ -46,7 +46,7 @@ export default function AddPost({user, token}) {
             }).then(response => response.json())
             .then(data => {
                 setMessage(data.msg);
-                fetch("/api/update/user", {
+               fetch("/api/update/user", {
                     method: "POST",
                     headers: {
                         "Content-type": "application/json",
@@ -63,10 +63,13 @@ export default function AddPost({user, token}) {
                     mode: "cors"
                 }).then(response => response.json()).then( data=> {
                     setMessage(data.msg);
+                    navigate('/', {replace:true});
                 });
-                window.location = "/";
+                
                 
             });
+            }
+        newsubmit();
         }
     }
     /* https://stackoverflow.com/questions/60637063/displaying-flash-message-in-react for flashmessages*/ 

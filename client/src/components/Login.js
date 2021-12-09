@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
+import {Link} from 'react-router-dom'
 
 
 
 
-
-export default function Login({setToken , token, setUser}) {
+export default function Login({setToken ,user, token, setUser}) {
 
     const [errorMessage, setErrorMessage] = useState('');
     const [username, setUsername] = useState();
@@ -34,16 +34,17 @@ export default function Login({setToken , token, setUser}) {
                 if(data.token){
                     setToken(data.token);
                     localStorage.setItem('token', data.token);
-                 
+                    localStorage.setItem("user", Buffer.from(data.token.split(".")[1], "base64").toString());
                     //from lecture 11-fullstack
                     setUser(JSON.parse(Buffer.from(data.token.split(".")[1], "base64").toString()));
+                    console.log(user);
                     console.log(JSON.parse(Buffer.from(data.token.split(".")[1], "base64").toString()));
                     //window.location="/";   
-                
+                    
             
                 
 
-                //window.location = "/";
+                window.location = "/";
             } else {
                 //show the error message
                 setErrorMessage(data.msg);

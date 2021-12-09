@@ -41,6 +41,10 @@
     resize: none;
 }
 
+#commentarea {
+    resize: none;
+}
+
 li {
     cursor: pointer;
     background-color: rgb(128, 119, 119);

@@ -8,15 +8,14 @@ export default function SinglePost({post, token, user}) {
     const [userVote, setUserVotes] = useState(0);
     const [posts, setPosts] = useState({});
     const [sessionToken, setSessionToken] = useState({});
-    console.log(post);
+    //console.log(post);
 
-
-
+ 
     useEffect(()=> {
-        console.log("username is:"+user.username);
+        //console.log("username is:"+user.username);
         setPosts(post);
-        console.log("!!!!!!!!!!!!!!"+posts.title);
-        for(let i=0; i<post.votes.lenght;i++){
+        //console.log("!!!!!!!!!!!!!!"+posts.title);
+        /*for(let i=0; i<post.votes.lenght;i++){
             
             //check if user has given a vote
             if(post.votes[0]===user.username){
@@ -29,12 +28,12 @@ export default function SinglePost({post, token, user}) {
                     setUserVotes(-1);
                 }
             }
-        }
+        }*/
 
     }, [userVote]);
 
     const addLike = (e) => {
-        console.log("####################username is:"+user.username);
+        //console.log("####################username is:"+user.username);
         e.preventDefault();
         console.log("LIKE");
         fetch("/api/post/votes", {
@@ -55,7 +54,7 @@ export default function SinglePost({post, token, user}) {
             mode: "cors"
         }).then(response => response.json())
         .then(data => {
-            console.log(data);
+           // console.log(data);
             setUserVotes(true);
             console.log("VOTE IS:"+userVote);
           
@@ -64,8 +63,8 @@ export default function SinglePost({post, token, user}) {
     }
     const addDislike = (e) => {
         e.preventDefault();
-        console.log("DISLIKE");
-        console.log("####################username is:"+user.username);
+        //console.log("DISLIKE");
+        //console.log("####################username is:"+user.username);
         fetch("/api/post/votes", {
             method: "POST",
             headers: {
@@ -83,7 +82,7 @@ export default function SinglePost({post, token, user}) {
             mode: "cors"
         }).then(response => response.json())
         .then(data => {
-            console.log(data);
+            //console.log(data);
             setUserVotes(false);
             console.log("VOTE IS:"+userVote);
                 
@@ -91,17 +90,20 @@ export default function SinglePost({post, token, user}) {
 
         
     }
+    console.log(post._id);
     return (
         <li style={{ listStyleType: "none" }}>
-            {sessionStorage.getItem('token') ? <Button onClick={addLike} variant = "contained" color = "secondary" id="like" >Like</Button>:""}
-            <br></br>
            
-            <Link to={{pathname:`/post/${post._id}`, query:{token : token, user: user} }} >{post.title}</Link>
+         
+           
+            <Link to={{pathname:`/post/${post._id}`, query:{token : token, user: user} }} ><h3>{post.title}</h3></Link>
+            <label>Posted by:  </label>
+            <Link to={`/profile/${post.username}`} data={post.username} token={null}>{post.username}</Link>
+           <p>Vote count: 10100</p>
+           {localStorage.getItem('token') ? <Button onClick={addLike} variant = "contained" color = "secondary" id="like" >Like</Button>:""}
+           {localStorage.getItem('token') ? <Button onClick={addDislike} variant = "contained" color = "primary" id="dislike" >dislike</Button> :""}
            <br></br>
-        
-           {sessionStorage.getItem('token') ? <Button onClick={addDislike} variant = "contained" color = "primary" id="dislike" >dislike</Button> :""}
-           <br></br>
-           <Link to={`/profile/${post.username}`} data={post.username} token={null}>{post.username}</Link>
+           
           
         </li>
     )
