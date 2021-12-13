@@ -47,7 +47,7 @@
 
 li {
     cursor: pointer;
-    background-color: rgb(128, 119, 119);
+    background-color: rgb(148, 196, 235);
     margin: .5em;
     border-radius: 15px;
     padding-left: 0.5cm;
@@ -63,6 +63,6 @@ label {
 
 li:hover {
     color: rgb(29, 29, 32);
-    background-color: #707070;
+    background-color: #45afec;
     left: .1em;
 }

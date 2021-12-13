@@ -2,7 +2,6 @@
     "name": "courseproject",
     "version": "1.0.0",
     "description": "",
-
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "cd server && npm start",
@@ -13,5 +12,9 @@
         "build": "cd client && npm run build"
     },
     "author": "jesse mustonen",
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "@material-ui/core": "^4.12.3",
+        "@material-ui/icons": "^4.11.2"
+    }
 }

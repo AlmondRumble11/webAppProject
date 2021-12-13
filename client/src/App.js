@@ -10,30 +10,38 @@ import Profile from './components/Profile';
 import Home from '../src/components/Home';
 import {useState, useEffect} from 'react';
 import Header from "./components/Header";
-import FlashMessage from 'react-flash-message';
+import { Alert, Collapse } from '@mui/material';
+
 
 function App() {
 
+  //values
   const [token, setToken] = useState("");
   const [user, setUser] = useState({});
+  const [open, setOpen] = useState(true);
 
+
+  //set the user if logged in
   useEffect(() => {
-    console.log("user is:"+user.username);
-    console.log("token is:"+token);
-    
-    if(token){
-    localStorage.setItem("user", JSON.stringify(user));
-      //setUser(JSON.parse(localStorage.getItem('user')));
-      
   
-    
+    if(token){
+      sessionStorage.setItem("user", JSON.stringify(user));
     }
   }, [])
+
+  //https://smartdevpreneur.com/add-a-react-router-link-to-a-material-ui-alert-component/
+  //collapse the alert
+  useEffect(() => {
+    setTimeout(() => {
+      setOpen(false);
+    }, 3000);
+  }, [open]);
   
   return (
     <Router>
     <div className="App">
-    <h2>{token ? `Logged in as ${user.username}!` : ""}</h2>
+    {token ? <Collapse in={open}><Alert timeout={2000}> Logged in as {user.username}</Alert></Collapse> : ""}
+    
     <Routes>
         <Route path="/login" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Login setToken={setToken} setUser={setUser} token={token}/> </>}/>
         <Route path="/" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Home user={user} token={token}/> </>}/>

@@ -1,81 +1,46 @@
 import {Link} from 'react-router-dom'
 import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 export default function SinglePost({post, token, user}) {
    
-    const [votes, setVotes] = useState(0);
-    const [userVote, setUserVotes] = useState(0);
+   
+    const [downvotes, setDownvotes] = useState(0);
+    const [upvotes, setUpvotes] = useState(0);
     const [posts, setPosts] = useState({});
-    const [sessionToken, setSessionToken] = useState({});
-    //console.log(post);
+    const [voteChanged, setVoteChanged] = useState(0);
+  
 
- 
-    useEffect(()=> {
-        //console.log("username is:"+user.username);
-        setPosts(post);
-        //console.log("!!!!!!!!!!!!!!"+posts.title);
-        /*for(let i=0; i<post.votes.lenght;i++){
-            
-            //check if user has given a vote
-            if(post.votes[0]===user.username){
-                
-                //check what the vote is
-            
-                if(post.votes[1]=== 1){
-                   setUserVotes(1);
-                }else{
-                    setUserVotes(-1);
-                }
-            }
-        }*/
-
-    }, [userVote]);
-
-    const addLike = (e) => {
-        //console.log("####################username is:"+user.username);
-        e.preventDefault();
-        console.log("LIKE");
-        fetch("/api/post/votes", {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json",
-                "authorization": "Bearer " + token,
-            
-            },
-            body: JSON.stringify({
-                _id: post._id,
-                username: user.username,
-                vote: 1
-                
-          
-            }),
-        
-            mode: "cors"
-        }).then(response => response.json())
-        .then(data => {
+    //for votes
+    useEffect(()=>{
+        fetch('/api/post/'+post._id).
+        then(res => res.json()).
+        then(data => {
            // console.log(data);
-            setUserVotes(true);
-            console.log("VOTE IS:"+userVote);
-          
-        }); 
-      
-    }
-    const addDislike = (e) => {
+            setUpvotes(data.upvotes.length);
+            setDownvotes( data.downvotes.length);
+            
+        });
+    },[voteChanged]);
+
+     //like the post was pressed
+     const  addLike = (e) => { 
         e.preventDefault();
-        //console.log("DISLIKE");
-        //console.log("####################username is:"+user.username);
-        fetch("/api/post/votes", {
+        console.log("like pressed");
+        //add like to db
+        let likepost  = async function() {
+            fetch('/api/post/votes', {
             method: "POST",
             headers: {
                 "Content-type": "application/json",
-                "authorization": "Bearer " + token,
+                "authorization": "Bearer " + sessionStorage.getItem('token'),
             
             },
             body: JSON.stringify({
                 _id: post._id,
-                username: user.username,
-                vote: -1
+                userID: JSON.parse(sessionStorage.getItem('user')).id,
+                vote : 1
           
             }),
         
@@ -83,29 +48,58 @@ export default function SinglePost({post, token, user}) {
         }).then(response => response.json())
         .then(data => {
             //console.log(data);
-            setUserVotes(false);
-            console.log("VOTE IS:"+userVote);
-                
+            if(voteChanged === 1){
+                setVoteChanged(2);
+            }else{
+                setVoteChanged(1);
+            }
+           
         }); 
-
-        
+        }
+        likepost();
     }
-    console.log(post._id);
+     //save the post was pressed
+     const addDislike = (e) => {
+        e.preventDefault();
+        console.log("dislike pressed");
+        //add disike to db
+        let dislikepost = async function() {
+            fetch('/api/post/votes', {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json",
+                "authorization": "Bearer " + sessionStorage.getItem('token'),
+
+            },
+            body: JSON.stringify({
+                _id: post._id,
+                userID: JSON.parse(sessionStorage.getItem('user')).id,
+                vote : -1
+            }),
+            mode: "cors"
+        }).then(response => response.json())
+        .then(data => {
+            //console.log(data);
+            if(voteChanged == 2){
+                setVoteChanged(1);
+            }else{
+                setVoteChanged(2);
+            }
+           
+        });   
+    }
+    dislikepost(); 
+    }
+ 
     return (
-        <li style={{ listStyleType: "none" }}>
-           
-         
-           
-            <Link to={{pathname:`/post/${post._id}`, query:{token : token, user: user} }} ><h3>{post.title}</h3></Link>
-            <label>Posted by:  </label>
-            <Link to={`/profile/${post.username}`} data={post.username} token={null}>{post.username}</Link>
-           <p>Vote count: 10100</p>
-           {localStorage.getItem('token') ? <Button onClick={addLike} variant = "contained" color = "secondary" id="like" >Like</Button>:""}
-           {localStorage.getItem('token') ? <Button onClick={addDislike} variant = "contained" color = "primary" id="dislike" >dislike</Button> :""}
-           <br></br>
-           
-          
-        </li>
+        <Link to={{pathname:`/post/${post._id}`, query:{token : token, user: user} }}style={{ textDecoration: 'none' }} >
+            <li style={{ listStyleType: "none" }} id={"li-"+post._id}>
+                <h3>{post.title}</h3>
+                <Button onClick={addLike} variant = "text" color = "success"  startIcon={<ArrowUpwardIcon/>} disabled={!sessionStorage.getItem('token')}>{upvotes}</Button>
+                <Button onClick={addDislike} variant = "text" color = "error" startIcon={<ArrowDownwardIcon/>} disabled={!sessionStorage.getItem('token')}>{downvotes}</Button> 
+                <br></br>
+            </li>
+        </Link>
     )
 }
 
