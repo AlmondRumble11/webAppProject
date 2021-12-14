@@ -5,6 +5,7 @@ https://docs.google.com/document/d/1usCOmlOnt1_2Xbz3S01Up1fJuk8NI_UN_eD5bi8CMME/
 
 
 How to run
+
   -clone the repository from github
   -
 
