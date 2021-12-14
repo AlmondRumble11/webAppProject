@@ -1,5 +1,6 @@
 # webAppProject
 Course project for web applications course
+NOTE: some of the code is from the previous tasks for this web application course and can be found from my other repositories
 Link to documentation  part where featuresand technology choices are listed:
 https://docs.google.com/document/d/1usCOmlOnt1_2Xbz3S01Up1fJuk8NI_UN_eD5bi8CMME/edit?usp=sharing
 
