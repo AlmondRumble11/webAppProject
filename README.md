@@ -5,11 +5,12 @@ https://docs.google.com/document/d/1usCOmlOnt1_2Xbz3S01Up1fJuk8NI_UN_eD5bi8CMME/
 
 
 Installation guidelines
+  - install npm to your computer
   - clone the repository from github
   - open the clone repository in IDE (Visual studio code for example)
   - then run commands to install all necessarry modules
-    -   npm install
-    -   npm preinstall 
+    -   npm run install
+    -   npm run preinstall 
   - 2 choices of running the project
     - production mode
       - only one server running
