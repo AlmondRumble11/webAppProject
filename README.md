@@ -33,7 +33,7 @@ How the project functions(user manual)
        
   
   -authenticated users(has logged in)
-   -can do same as non-authenticated user
+    -can do same as non-authenticated user
     
     -but also CAN
      
