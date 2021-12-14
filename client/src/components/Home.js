@@ -2,7 +2,7 @@ import React from 'react'
 import { useState,useEffect  } from 'react';
 import SinglePost from './SinglePost'
 import { Button, TextField, List } from '@mui/material';
-import { useFormControl } from '@mui/material/FormControl';
+
 
 
 export default function Home({token , user}) {
@@ -22,7 +22,8 @@ export default function Home({token , user}) {
     const [firstpost, setFirst] = useState(0);
     const [showNext, setShowNext] = useState(true);
     const [showPrev, setShowPrev] = useState(true);
-
+    const [error, setError] = useState(null); //https://blog.logrocket.com/understanding-react-useeffect-cleanup-function/
+                                                // in case user presses go back 
   
     //getting all of the posts
     useEffect(() => {
@@ -51,7 +52,7 @@ export default function Home({token , user}) {
                         setShowNext(false);
                     }
                 }
-            });
+            }).catch((err)=> setError(err));
             
     }, []);
 
@@ -146,17 +147,17 @@ export default function Home({token , user}) {
     
         <br></br>
         <div>
-            <TextField fullWidth type="search" label="Search" id="search" placeholder='Search for post title' value={searchValue} onChange={e => setSearchValue(e.target.value)}/>
+            <TextField fullWidth type="search" label="Search" id="search" placeholder='Search for post title' onChange={e => setSearchValue(e.target.value)}/>
         </div>
         <div>
     
         <h1>All posts</h1>
-        <List>
+        {!error ? (<List>
                 {shownPosts.map((post) => (
-                    <SinglePost key={post.id} post={post} token={token} user={user} />
+                    <SinglePost key={post._id} post={post} token={token} user={user} />
                     
                 ))}
-        </List>
+        </List>) : ""}
          <Button onClick={goPrev} id="prevPage" variant = "text" disabled={!showPrev} color = "primary">Previous Page</Button>
         <label>{page}   </label>
         <Button onClick={goNext} id="nextPage" variant = "text" disabled={!showNext} color = "primary">Next Page</Button> 

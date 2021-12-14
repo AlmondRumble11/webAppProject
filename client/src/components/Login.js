@@ -6,7 +6,8 @@ import { Button, TextField } from '@mui/material';
 
 
 export default function Login({setToken ,user, token, setUser}) {
-    let navigate = useNavigate(); //for navigation
+    //https://stackoverflow.com/questions/31079081/programmatically-navigate-using-react-router used for all useNavigate()
+    let navigate = useNavigate(); //for navigation //
     const [badvalue, setBadvalue] = useState(false);
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
@@ -34,10 +35,11 @@ export default function Login({setToken ,user, token, setUser}) {
                 if(data.token){
                     setToken(data.token);
                     sessionStorage.setItem('token', data.token);
+                    console.log(Buffer.from(data.token.split(".")[0], "base64").toString());
                     sessionStorage.setItem("user", Buffer.from(data.token.split(".")[1], "base64").toString());
                     //from lecture 11-fullstack
                     setUser(JSON.parse(Buffer.from(data.token.split(".")[1], "base64").toString()));
-                    console.log(user);
+                    
                     console.log(JSON.parse(Buffer.from(data.token.split(".")[1], "base64").toString()));
                     //window.location="/";   
                     

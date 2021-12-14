@@ -8,11 +8,12 @@ const passport = require("passport");
 module.exports = function(req) {
     let opts = {};
     opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-    opts.secretOrKey = 'secret';
+    opts.secretOrKey = process.env.SECRET;
 
     console.log(opts);
     console.log("passport use");
     passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
+
         console.log(jwt_payload);
         Users.findOne({ email: jwt_payload.email }, (err, user) => {
             if (err) {

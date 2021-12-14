@@ -30,6 +30,8 @@ export default function Post() {
     const [downvotes, setDownvotes] = useState(0);
     const [upvotes, setUpvotes] = useState(0);
     const [voteChanged, setVoteChanged] = useState(0);
+    const [error, setError] = useState(null);
+
 
     //get post info from db
     useEffect(()=>{
@@ -72,9 +74,9 @@ export default function Post() {
             });
 
       
-        });
+        }).catch((err)=> setError(err));
       
-    },[loaded]);
+    },[loaded, id]);
 
     //for changing the vote
     useEffect(()=>{
@@ -83,12 +85,12 @@ export default function Post() {
         then(res => res.json()).
         then(data => {
             //console.log(data);
-
+            //set new votes
             setUpvotes(data.upvotes.length);
             setDownvotes( data.downvotes.length);
             
-        });
-    },[voteChanged]);
+        }).catch((err)=> setError(err));
+    },[voteChanged, id]);
 
     //when add comment btn is pressed
     const addComment = (e) => {
@@ -299,7 +301,7 @@ export default function Post() {
         .then(data => {
             //console.log(data);
             //for the vote count
-            if(voteChanged == 2){
+            if(voteChanged === 2){
                 setVoteChanged(1);
             }else{
                 setVoteChanged(2);
@@ -347,11 +349,11 @@ export default function Post() {
             </div>
             <h1>Comments</h1>
           
-            <List id="commentlist">
+            {!error ?(<List id="commentlist">
             {postComments.map((item) =>   
                 <Comment key={item._id} item={item} username={item.username} content={item.content}  date={item.date}/>
             )};
-            </List>
+            </List> ):""}
         </div>
     )
 }

@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 
 
-export default function Profile({token, user}) {
+export default function Profile() {
 
     //username from url and profile user
     const [profileUser, setProfileUser] = useState([]);
     const {username} = useParams();
+    
 
     //getting the user
     useEffect(() => {
@@ -19,10 +20,11 @@ export default function Profile({token, user}) {
                 //console.log(data);
                 //set the user of the profile page
                 setProfileUser(data);
+            
             });
     }, [username]);
 
-    console.log(user, token);
+    
     return (
         <div>
             <h1>Profile</h1>

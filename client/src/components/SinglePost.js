@@ -9,18 +9,19 @@ export default function SinglePost({post, token, user}) {
     const [downvotes, setDownvotes] = useState(0);
     const [upvotes, setUpvotes] = useState(0);
     const [posts, setPosts] = useState({});
-    const [voteChanged, setVoteChanged] = useState(0);
+    const [voteChanged, setVoteChanged] = useState(false);
   
 
     //for votes
     useEffect(()=>{
+        console.log('vote changed');
         fetch('/api/post/'+post._id).
         then(res => res.json()).
         then(data => {
            // console.log(data);
             setUpvotes(data.upvotes.length);
             setDownvotes( data.downvotes.length);
-            
+            console.log(data.upvotes.length, data.downvotes.length);
         });
     },[voteChanged]);
 
@@ -48,10 +49,10 @@ export default function SinglePost({post, token, user}) {
         }).then(response => response.json())
         .then(data => {
             //console.log(data);
-            if(voteChanged === 1){
-                setVoteChanged(2);
+            if(voteChanged === false){
+                setVoteChanged(true);
             }else{
-                setVoteChanged(1);
+                setVoteChanged(false);
             }
            
         }); 
@@ -80,10 +81,10 @@ export default function SinglePost({post, token, user}) {
         }).then(response => response.json())
         .then(data => {
             //console.log(data);
-            if(voteChanged == 2){
-                setVoteChanged(1);
+            if(voteChanged === false){
+                setVoteChanged(true);
             }else{
-                setVoteChanged(2);
+                setVoteChanged(false);
             }
            
         });   

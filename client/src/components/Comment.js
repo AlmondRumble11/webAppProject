@@ -58,7 +58,7 @@ export default function Comments({item, username, content, date}) {
             setDownvotes( data.downvotes.length);
             
         });
-    },[voteChanged]);
+    },[voteChanged,item._id]);
 
     //adding a like to comment
     const addLike = (e) => {

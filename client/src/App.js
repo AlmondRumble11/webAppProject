@@ -39,17 +39,17 @@ function App() {
   
   return (
     <Router>
-    <div className="App">
-    {token ? <Collapse in={open}><Alert timeout={2000}> Logged in as {user.username}</Alert></Collapse> : ""}
+    <div className="App">                                                                       {/*incase page reload -->usestate user in null*/}
+    {sessionStorage.getItem('token') ? <Collapse in={open}><Alert timeout={2000}> Logged in as { JSON.parse(sessionStorage.getItem('user')).username}</Alert></Collapse> : ""}
     
     <Routes>
         <Route path="/login" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Login setToken={setToken} setUser={setUser} token={token}/> </>}/>
         <Route path="/" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Home user={user} token={token}/> </>}/>
         <Route  path="/register" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Register /> </>}/> 
         <Route  path="/post/:id" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Post/> </>}/> 
-        <Route  path="/addpost" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <AddPost user={user} token={token}/> </>}/>
-        <Route  path="/profile/:username" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Profile user={user} token={null}/> </>}/>
-        <Route  path="/profile/" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Profile user={user} token={token}/> </>}/>
+        <Route  path="/addpost" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <AddPost /> </>}/>
+        <Route  path="/profile/:username" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Profile /> </>}/>
+        <Route  path="/profile/" element={<> <Header user={user} token={token} setToken={setToken} setUser={setUser}/> <Profile/> </>}/>
       </Routes>
       </div>
     </Router>

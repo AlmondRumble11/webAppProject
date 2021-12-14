@@ -143,8 +143,8 @@ router.post('/login', upload.none(), (req, res, next) => {
                     //secret is from the .env file 
                     var token = jwt.sign(
                         jwtPayload,
-                        'secret', {
-                            expiresIn: 10000
+                        process.env.SECRET, {
+                            expiresIn: 100000
                         });
 
                     //return res.redirect('/');

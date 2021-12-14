@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 
 
-export default function AddPost({user, token}) {
+export default function AddPost() {
     let navigate = useNavigate(); //for navigation
 
     //use states for the content and title of the post

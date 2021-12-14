@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -5,6 +7,7 @@ var logger = require('morgan');
 const config = require("./config/database");
 var apiRouter = require('./routes/index');
 const mongoose = require("mongoose");
+var cors = require('cors');
 
 var app = express();
 
@@ -31,11 +34,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 const passport = require("passport");
 const session = require("express-session");
 app.use(cookieParser());
-app.use(session({ secret: 'secret' }));
+app.use(session({ secret: process.env.SECRET }));
 app.use(passport.initialize());
 app.use(passport.session());
 require('./auth/auth')(passport);
 
+console.log(process.env.SECRET);
 
 app.use('/api', apiRouter);
 

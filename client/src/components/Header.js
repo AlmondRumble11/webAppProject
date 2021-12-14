@@ -6,10 +6,10 @@ import LoginIcon from '@material-ui/icons/AccountCircle';
 import Button from '@mui/material/Button';
 import { Link as RouterLink } from "react-router-dom";
 import LogoutIcon from '@material-ui/icons/ExitToApp';
-
-
+import { Alert, Collapse } from '@mui/material';
+import {useState, useEffect} from 'react';
 export default function Header({user, token ,setToken, setUser}) {
-   
+    const [open, setOpen] = useState(true); //logging out
     //clear values and log out the user
     const logout = (e) => {
         e.preventDefault();
@@ -18,13 +18,22 @@ export default function Header({user, token ,setToken, setUser}) {
         setToken("");
         sessionStorage.clear();
         window.location="/";
+        setOpen(false);
         
     }
-
+  //https://smartdevpreneur.com/add-a-react-router-link-to-a-material-ui-alert-component/
+  //collapse the alert
+  useEffect(() => {
+    setTimeout(() => {
+      setOpen(false);
+    }, 3000);
+    }, [open]);
 
   
     return ( 
+        
         <Box sx = {{ flexGrow: 1 } }>
+        {!sessionStorage.getItem('token') ? <Collapse in={open}><Alert color="error"> Logged out</Alert></Collapse> : ""}
         <AppBar position = "static">
         <Toolbar> { /*https://stackoverflow.com/questions/63216730/can-you-use-material-ui-link-with-react-router-dom-link*/ } 
         <Button  variant = "text" color = "inherit" component = { RouterLink } to = "/"> Home</Button> 
