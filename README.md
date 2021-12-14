@@ -21,6 +21,7 @@ Installation guidelines
           - SET NODE_ENV=production& npm run dev:server
         - Other
           - NODE_ENV=production npm run dev:server
+      - then go to http://localhost:1234 
     - development mode
       - individual servers for client and server
       - Command
@@ -43,7 +44,7 @@ What the project is?
   - the project is an website where users can create posts, leave comments on posts and vote both comments and posts.
   - There is also a search feature where users can search posts by their title
   - users can also remove and edit their posts and comments and other users can see the last modified time and date
-  - 
+  - users can also see other users profiles when they press profile name from the post
 
 How the project functions(user manual)
   - non-authenticated users(has not logged in)
