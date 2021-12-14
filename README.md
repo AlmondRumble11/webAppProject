@@ -31,6 +31,7 @@ Installation guidelines
           - NODE_ENV=development npm run dev:server
         - and for both then run
           - npm run dev:client
+          - if new http://localhost:3000 does not start go to that localtion yourself
     - if node not set then project can be run using
       - npm run dev:server
       - npm run dev:client
