@@ -6,6 +6,9 @@ NOTE: some of the code is from the previous tasks for this web application cours
 Link to documentation  part where featuresand technology choices are listed:
 https://docs.google.com/document/d/1usCOmlOnt1_2Xbz3S01Up1fJuk8NI_UN_eD5bi8CMME/edit?usp=sharing
 
+Link to heroku app
+https://web-app-course-project.herokuapp.com/
+
 
 Installation guidelines
   - install npm to your computer
